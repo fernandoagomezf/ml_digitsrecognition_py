@@ -92,12 +92,19 @@ class View():
     
     def show_results(self, result:Result) -> None:
         self.show_message("Resultados de la evaluación:")
+        print(f"\tEvaluación realizada: {result.datetime:%Y-%m-%d %H:%M:%S}")
         print(f"\tExactitud del modelo: {result.accuracy * 100:.2f}%")
         print(f"\tNúmero de características: {result.feature_count}")
         print(f"\tTotal de registros: {result.total_records}")
         print(f"\tRegistros de entrenamiento: {result.train_records}")
         print(f"\tRegistros de prueba: {result.test_records}")
-        print(f"\tFecha y hora de la evaluación: {result.datetime:%Y-%m-%d %H:%M:%S}")
+        print(f"\tErrores: {result.error_count}")
+        print(f"\tMatriz de confusión:")
+        print(f"\t\tFilas: valores reales")
+        print(f"\t\tColumnas: valores predichos")
+        print(f"\t\tDiagonal: aciertos")
+        print(f"\t\tFuera de diagonal: errores")
+        print(result.confusion_matrix)
         print("\n")
 
     def pause(self) -> None:

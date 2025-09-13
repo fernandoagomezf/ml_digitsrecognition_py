@@ -64,6 +64,7 @@ class Controller():
         self._model.evaluate()
         result = self._model.get_result()
         self._view.show_results(result)
+        self._view.pause()
 
     def exit(self) -> None:
         self._running = False

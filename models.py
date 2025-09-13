@@ -6,6 +6,7 @@ from dataclasses import replace
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix
 
 @dataclass
 class Data:
@@ -24,6 +25,8 @@ class Result:
     total_records: int
     train_records: int
     test_records: int
+    error_count: int
+    confusion_matrix: Any
 
 @dataclass(frozen=True)
 class HyperParameters:
@@ -109,10 +112,16 @@ class Model():
         if self._data.test_features is None or self._data.test_target is None:
             raise ValueError("Los datos de prueba no están disponibles. Por favor, asegúrese de que el modelo ha sido entrenado correctamente antes de evaluar.")
         
+        predicted = self._knn.predict(self._data.test_features)
+        expected = self._data.test_target
+        errored = [(pred, exp) for (pred, exp) in zip(predicted, expected) if pred != exp]
+
         accuracy = self._knn.score(
             self._data.test_features, 
             self._data.test_target
         )
+
+        cm = confusion_matrix(self._data.test_target, predicted)
 
         self._result = Result(
             accuracy=accuracy, 
@@ -120,5 +129,7 @@ class Model():
             feature_count=self._data.set.shape[1],
             total_records=len(self._data.set),
             train_records=len(self._data.train_features),
-            test_records=len(self._data.test_features)
+            test_records=len(self._data.test_features), 
+            error_count=len(errored), 
+            confusion_matrix=cm
         )
