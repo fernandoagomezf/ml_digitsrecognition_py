@@ -27,6 +27,9 @@ class View():
         print("                  (C) Fernando A. Gómez F.                  ")
         print("============================================================")
 
+    def show_message(self, message: str) -> None:
+        print(f"\n*** {message} ***\n")
+
     def display_menu(self) -> MenuOptions:
         menu: MenuOptions = None
         while menu is None:
