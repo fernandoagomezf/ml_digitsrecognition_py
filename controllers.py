@@ -36,16 +36,27 @@ class Controller():
             
 
     def load_data(self) -> None:
-        pass 
+        self._view.clear_screen()
+        self._model.load()
+        self._view.show_message("Modelo cargado correctamente.")
 
     def change_params(self) -> None:
-        pass 
+        self._view.clear_screen()
+        params = self._view.capture_parameters()
+        self._model.set_seed(params["seed"])
+        self._model.set_test_size(params["test_size"])
+        self._view.show_message("Parámetros cambiados correctamente.")
 
     def train(self) -> None:
-        pass
+        self._view.clear_screen()
+        self._view.show_message("Entrenando el modelo...")
+        self._model.train()
+        self._view.show_message("Modelo entrenado correctamente.")
 
     def show_results(self) -> None:
-        pass 
+        self._view.clear_screen()
+        result = self._model.get_result()
+        self._view.show_results(result)
 
     def exit(self) -> None:
         self._running = False
