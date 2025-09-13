@@ -1,5 +1,6 @@
 from typing import Any
 
+from datetime import datetime
 from dataclasses import dataclass
 from dataclasses import replace
 from sklearn.datasets import load_digits
@@ -18,7 +19,11 @@ class Data:
 @dataclass(frozen=True)
 class Result:
     accuracy: float
-    accuracy_display: str
+    datetime: datetime
+    feature_count: int
+    total_records: int
+    train_records: int
+    test_records: int
 
 @dataclass(frozen=True)
 class HyperParameters:
@@ -40,7 +45,7 @@ class Model():
         )
         self._data = Data(None, None, None, None, None, None)
         self._knn = KNeighborsClassifier(n_neighbors=self._params.k_neighbors)
-        self._result = Result(0.0, "")
+        self._result = None
 
     def load(self):
         digits = load_digits()
@@ -110,6 +115,10 @@ class Model():
         )
 
         self._result = Result(
-            accuracy, 
-            f"{accuracy * 100:.2f}%"
+            accuracy=accuracy, 
+            datetime=datetime.now(),
+            feature_count=self._data.set.shape[1],
+            total_records=len(self._data.set),
+            train_records=len(self._data.train_features),
+            test_records=len(self._data.test_features)
         )
