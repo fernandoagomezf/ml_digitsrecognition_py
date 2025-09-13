@@ -24,11 +24,13 @@ class Model():
     _test_size: float
     _data: Data
     _result: Result
+    _knn: KNeighborsClassifier
 
     def __init__(self):
         self._seed = 0
         self._test_size = 0.3
         self._data = Data(None, None, None, None, None, None)
+        self._knn = KNeighborsClassifier()
         self._result = Result(0.0, "")
 
     def load(self):
@@ -75,14 +77,21 @@ class Model():
             y_test
         )
 
-        knn = KNeighborsClassifier()
-        knn.fit(
+        self._knn.fit(
             self._data.train_features, 
             self._data.train_target
         )
-        accuracy = knn.score(
+
+    def evaluate(self):
+        if self._data.test_features is None or self._data.test_target is None:
+            raise ValueError("Los datos de prueba no están disponibles. Por favor, asegúrese de que el modelo ha sido entrenado correctamente antes de evaluar.")
+        
+        accuracy = self._knn.score(
             self._data.test_features, 
             self._data.test_target
         )
 
-        self._result = Result(accuracy, f"{accuracy * 100:.2f}%")
+        self._result = Result(
+            accuracy, 
+            f"{accuracy * 100:.2f}%"
+        )

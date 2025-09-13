@@ -7,7 +7,7 @@ class MenuOptions(Enum):
     LOAD_DATA = 1
     CHANGE_PARAMS = 2
     TRAIN_MODEL = 3
-    SHOW_RESULTS = 4
+    EVALUATE = 4
     EXIT = 5
 
 class View():
@@ -29,7 +29,7 @@ class View():
         print("============================================================")
 
     def show_message(self, message: str) -> None:
-        print(f"\n*** {message} ***\n")
+        print(f"\n*** {message} ***")
 
     def display_menu(self) -> MenuOptions:
         menu: MenuOptions = None
@@ -38,7 +38,7 @@ class View():
             print("\t1. Cargar set de datos de dígitos")
             print("\t2. Cambiar parámetros del modelo")
             print("\t3. Entrenar modelo")
-            print("\t4. Mostrar resultados")
+            print("\t4. Evaluar modelo")
             print("\t5. Salir")
             print("Ingrese una opción: ")
             try:
@@ -90,6 +90,9 @@ class View():
         return params
     
     def show_results(self, result:Result) -> None:
-        self.show_message("Resultados del modelo:")
+        self.show_message("Resultados de la evaluación:")
         print(f"\tExactitud del modelo: {result.accuracy_display}")
         print("\n")
+
+    def pause(self) -> None:
+        input("*** Presione Enter para continuar... ***")

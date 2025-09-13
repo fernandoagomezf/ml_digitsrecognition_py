@@ -19,22 +19,26 @@ class Controller():
         self._view.show_header()
         self._model.load()
         
-        while self._running:            
-            choice = self._view.display_menu()
-            self._view.clear_screen()
-            match (choice):
-                case MenuOptions.LOAD_DATA:
-                    self.load_data()
-                case MenuOptions.CHANGE_PARAMS:
-                    self.change_params()
-                case MenuOptions.TRAIN_MODEL:
-                    self.train()
-                case MenuOptions.SHOW_RESULTS:
-                    self.show_results()
-                case MenuOptions.EXIT:
-                    self.exit()
+        while self._running:
+            try:     
+                choice = self._view.display_menu()
+                self._view.clear_screen()
+                match (choice):
+                    case MenuOptions.LOAD_DATA:
+                        self.load_data()
+                    case MenuOptions.CHANGE_PARAMS:
+                        self.change_params()
+                    case MenuOptions.TRAIN_MODEL:
+                        self.train()
+                    case MenuOptions.EVALUATE:
+                        self.evaluate()
+                    case MenuOptions.EXIT:
+                        self.exit()
+            except Exception as e:
+                self._view.show_message(f"Error: {str(e)}")
+                self._view.pause()
+                self._view.clear_screen()
             
-
     def load_data(self) -> None:
         self._view.clear_screen()
         self._model.load()
@@ -53,8 +57,10 @@ class Controller():
         self._model.train()
         self._view.show_message("Modelo entrenado correctamente.")
 
-    def show_results(self) -> None:
+    def evaluate(self) -> None:
         self._view.clear_screen()
+        self._view.show_message("Evaluando el modelo...")
+        self._model.evaluate()
         result = self._model.get_result()
         self._view.show_results(result)
 
