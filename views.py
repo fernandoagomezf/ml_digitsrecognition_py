@@ -1,6 +1,7 @@
 import os
 
 from enum import Enum
+from models import Result
 
 class MenuOptions(Enum):
     LOAD_DATA = 1
@@ -54,13 +55,13 @@ class View():
         while not captured:
             try:
                 print(f"\t{value_name} ({tip}):")
-                cmd = input(":> ")
+                cmd = input("\t:> ")
                 val = int(cmd)
                 if not (min_val <= val <= max_val):
                     raise ValueError("Valor fuera de rango.")
                 captured = True
             except ValueError:
-                print(f"*** Valor inválido para {value_name}, intente de nuevo. ***")
+                print(f"\t*** Valor inválido para {value_name}, intente de nuevo. ***")
         
         return val
     
@@ -70,13 +71,13 @@ class View():
         while not captured:
             try:
                 print(f"\t{value_name} ({tip}):")
-                cmd = input(":> ")
+                cmd = input("\t:> ")
                 val = float(cmd)
                 if not (min_val <= val <= max_val):
                     raise ValueError("Valor fuera de rango.")
                 captured = True
             except ValueError:
-                print(f"*** Valor inválido para {value_name}, intente de nuevo. ***")
+                print(f"\t*** Valor inválido para {value_name}, intente de nuevo. ***")
         
         return val
     
@@ -87,3 +88,8 @@ class View():
         params["test_size"] = self._capture_value_f("Tamaño del set de prueba", "valor entre 0 y 1", 0.0, 1.0)
 
         return params
+    
+    def show_results(self, result:Result) -> None:
+        self.show_message("Resultados del modelo:")
+        print(f"\tExactitud del modelo: {result.accuracy_display}")
+        print("\n")
