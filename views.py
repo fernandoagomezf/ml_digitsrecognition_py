@@ -87,13 +87,18 @@ class View():
         params["seed"] = self._capture_value_i("Semilla generador aleatorio", "entero > 0", 1, 2**32 - 1)
         params["test_size"] = self._capture_value_f("Tamaño del set de prueba", "valor entre 0 y 1", 0.0, 1.0)
         params["k_neighbors"] = self._capture_value_i("Número de vecinos (k)", "entero > 0", 1, 100)
+        params["k_fold"] = self._capture_value_i("Número de particiones (k-fold)", "entero >= 0 (0 = desactivar)", 0, 20)
 
         return params
     
     def show_results(self, result:Result) -> None:
         self.show_message("Resultados de la evaluación:")
         print(f"\tEvaluación realizada: {result.datetime:%Y-%m-%d %H:%M:%S}")
-        print(f"\tExactitud del modelo: {result.accuracy * 100:.2f}%")
+        print(f"\tExactitud del modelo: {result.normal_accuracy * 100:.2f}%")
+        if result.crossval_accuracy > 0.0:
+            print(f"\tExactitud (validación cruzada): {result.crossval_accuracy * 100:.2f}%")
+        else:
+            print(f"\tExactitud (validación cruzada): N/A")
         print(f"\tNúmero de características: {result.feature_count}")
         print(f"\tTotal de registros: {result.total_records}")
         print(f"\tRegistros de entrenamiento: {result.train_records}")

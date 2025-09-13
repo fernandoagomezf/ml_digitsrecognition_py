@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from dataclasses import replace
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
 
@@ -19,7 +21,8 @@ class Data:
 
 @dataclass(frozen=True)
 class Result:
-    accuracy: float
+    normal_accuracy: float
+    crossval_accuracy: float
     datetime: datetime
     feature_count: int
     total_records: int
@@ -33,6 +36,7 @@ class HyperParameters:
     seed:int
     test_size:float
     k_neighbors:int
+    k_fold:int
 
 class Model():
     _params: HyperParameters
@@ -44,7 +48,8 @@ class Model():
         self._params = HyperParameters(
             seed=0, 
             test_size=0.3, 
-            k_neighbors=3
+            k_neighbors=3,
+            k_fold=0
         )
         self._data = Data(None, None, None, None, None, None)
         self._knn = KNeighborsClassifier(n_neighbors=self._params.k_neighbors)
@@ -81,6 +86,15 @@ class Model():
             self._knn.set_params(n_neighbors=k_neighbors)
         else:
             raise ValueError("El número de vecinos debe ser mayor a cero.")
+        
+    def get_k_fold(self) -> int:
+        return self._params.k_fold
+    
+    def set_k_fold(self, k_fold:int) -> None:
+        if k_fold >= 0:
+            self._params = replace(self._params, k_fold=k_fold)
+        else:
+            raise ValueError("El número de particiones (k-fold) debe ser cero o mayor.")
         
     def get_result(self) -> Result:
         return self._result
@@ -121,10 +135,17 @@ class Model():
             self._data.test_target
         )
 
+        crossval_accuracy = 0.0
+        if self._params.k_fold > 0:
+            kfold = KFold(n_splits=self._params.k_fold, shuffle=True, random_state=self._params.seed)
+            scores = cross_val_score(self._knn, self._data.set, self._data.target, cv=kfold)
+            crossval_accuracy = scores.mean()
+
         cm = confusion_matrix(self._data.test_target, predicted)
 
         self._result = Result(
-            accuracy=accuracy, 
+            normal_accuracy=accuracy, 
+            crossval_accuracy=crossval_accuracy,
             datetime=datetime.now(),
             feature_count=self._data.set.shape[1],
             total_records=len(self._data.set),

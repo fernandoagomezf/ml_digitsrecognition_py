@@ -50,6 +50,7 @@ class Controller():
         self._model.set_seed(params["seed"])
         self._model.set_test_size(params["test_size"])
         self._model.set_k_neighbors(params["k_neighbors"])
+        self._model.set_k_fold(params["k_fold"])
         self._view.show_message("Parámetros cambiados correctamente.")
 
     def train(self) -> None:
