@@ -86,6 +86,7 @@ class View():
 
         params["seed"] = self._capture_value_i("Semilla generador aleatorio", "entero > 0", 1, 2**32 - 1)
         params["test_size"] = self._capture_value_f("Tamaño del set de prueba", "valor entre 0 y 1", 0.0, 1.0)
+        params["k_neighbors"] = self._capture_value_i("Número de vecinos (k)", "entero > 0", 1, 100)
 
         return params
     
