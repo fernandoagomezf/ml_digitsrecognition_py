@@ -1,7 +1,7 @@
 import os
 
 from enum import Enum
-from models import Result
+from src.domain.digits import Result
 
 class MenuOptions(Enum):
     LOAD_DATA = 1

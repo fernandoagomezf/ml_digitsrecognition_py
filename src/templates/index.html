@@ -1,0 +1,87 @@
+{% extends "master.html" %}
+
+{% block content %}
+    <div class="row">
+            <div class="col-lg-8">
+                <div class="card p-4 mb-4">
+                    <span class="model-badge"><i class="bi bi-diagram-3"></i> Some Fancy Title</span>
+                    <h2>Important Title</h2>
+                    <p class="text-muted">The following is some sort of content I haven't figured out yet:</p>
+                    
+                    <div class="row">
+                        <div class="col-md-12 mb-6">
+                            Some content here
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="button" class="btn btn-primary flex-fill" id="addBtn">
+                            <i class="bi bi-plus-circle"></i> Some Action
+                        </button>
+                        <button type="button" class="btn btn-primary flex-fill" id="viewBtn">
+                            <i class="bi bi-card-list"></i> Another Action
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">                
+                <div class="card p-4">
+                    <h3><i class="bi bi-lightning-charge"></i> Task Summary</h3>
+                    <ul class="list-group list-group-flush">
+                        {% for item in summary %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Something
+                            <span class="badge bg-primary rounded-pill">{{ item.pending }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Something
+                            <span class="badge bg-success rounded-pill">{{ item.in_progress }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Something
+                            <span class="badge bg-info rounded-pill">{{ item.closed }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total
+                            <span class="badge bg-primary rounded-pill">{{ item.total }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card p-4">
+                    <h3><i class="bi bi-speedometer2"></i> Dashboard</h3>
+                    <ul class="list-group list-group-flush">
+                        {% for item in summary %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Something
+                            <span class="badge bg-primary rounded-pill">{{ item.overdue }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Something
+                            <span class="badge bg-primary rounded-pill">{{ item.high_priority }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Something
+                            <span class="badge bg-primary rounded-pill">{{ item.normal_priority }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>        
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function() {        
+        document.getElementById("addBtn").onclick = function () {
+            
+        };
+        document.getElementById("viewBtn").onclick = function () {
+            
+        };
+    });
+</script>
+{% endblock %}

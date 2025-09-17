@@ -38,7 +38,7 @@ class HyperParameters:
     k_neighbors:int
     k_fold:int
 
-class Model():
+class DigitsClassifier():
     _params: HyperParameters
     _data: Data
     _result: Result

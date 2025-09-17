@@ -1,4 +1,4 @@
-from models import Model
+from src.domain.digits import Model
 from views import View
 from views import MenuOptions
 
