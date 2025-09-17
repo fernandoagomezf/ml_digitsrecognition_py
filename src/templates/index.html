@@ -4,22 +4,25 @@
     <div class="row">
             <div class="col-lg-8">
                 <div class="card p-4 mb-4">
-                    <span class="model-badge"><i class="bi bi-diagram-3"></i> Some Fancy Title</span>
-                    <h2>Important Title</h2>
-                    <p class="text-muted">The following is some sort of content I haven't figured out yet:</p>
+                    <span class="model-badge"><i class="bi bi-diagram-3"></i> Machine Learning: </span>
+                    <h2>Draw a single digit to predict</h2>
+                    <p class="text-muted">
+                        The machine learning  model uses the Optical Recognition of Handwriting Digits dataset 
+                        and it's trained using the K-Nearest Neighbors (KNN) algorithm.
+                    </p>
                     
                     <div class="row">
-                        <div class="col-md-12 mb-6">
-                            Some content here
+                        <div class="col-md-12 mb-6 text-center">
+                            <canvas id="drawCanvas" width="280" height="280" style="border: 1px solid #dee2e6;"></canvas>
                         </div>
                     </div>
                     
                     <div class="mt-4 d-flex gap-2">
-                        <button type="button" class="btn btn-primary flex-fill" id="addBtn">
-                            <i class="bi bi-plus-circle"></i> Some Action
+                        <button type="button" class="btn btn-primary flex-fill" id="clearButton">
+                            <i class="bi bi-eraser-fill"></i> Clear
                         </button>
-                        <button type="button" class="btn btn-primary flex-fill" id="viewBtn">
-                            <i class="bi bi-card-list"></i> Another Action
+                        <button type="button" class="btn btn-primary flex-fill" id="predictButton">
+                            <i class="bi bi-magic"></i> Predict
                         </button>
                     </div>
                 </div>
@@ -27,45 +30,48 @@
             
             <div class="col-lg-4">                
                 <div class="card p-4">
-                    <h3><i class="bi bi-lightning-charge"></i> Task Summary</h3>
-                    <ul class="list-group list-group-flush">
-                        {% for item in summary %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Something
-                            <span class="badge bg-primary rounded-pill">{{ item.pending }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Something
-                            <span class="badge bg-success rounded-pill">{{ item.in_progress }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Something
-                            <span class="badge bg-info rounded-pill">{{ item.closed }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Total
-                            <span class="badge bg-primary rounded-pill">{{ item.total }}</span>
-                        </li>
-                        {% endfor %}
+                    <h3><i class="bi bi-magic"></i> Prediction</h3>
+                    <ul class="list-group list-group-flush">                        
+                        <li class="list-group-item d-flex justify-content-between align-items-center">                            
+                            <span id="predictionResult">-- No prediction made --</span>
+                        </li>                        
                     </ul>
                 </div>
                 <div class="card p-4">
-                    <h3><i class="bi bi-speedometer2"></i> Dashboard</h3>
-                    <ul class="list-group list-group-flush">
-                        {% for item in summary %}
+                    <h3><i class="bi bi-file-earmark-binary-fill"></i> Training summary</h3>
+                    <ul class="list-group list-group-flush">                        
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Something
-                            <span class="badge bg-primary rounded-pill">{{ item.overdue }}</span>
+                            Total records
+                            <span id="totalRecords" class="badge bg-primary rounded-pill">0</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Something
-                            <span class="badge bg-primary rounded-pill">{{ item.high_priority }}</span>
+                            Training records
+                            <span id="trainingRecords" class="badge bg-primary rounded-pill">0</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Something
-                            <span class="badge bg-primary rounded-pill">{{ item.normal_priority }}</span>
+                            Test records
+                            <span id="testRecords" class="badge bg-primary rounded-pill">0</span>
                         </li>
-                        {% endfor %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Error count
+                            <span id="errorCount" class="badge bg-primary rounded-pill">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Accuracy
+                            <span id="accuracy" class="badge bg-primary rounded-pill">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Cross validation
+                            <span id="crossValidation" class="badge bg-primary rounded-pill">0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span id="trainingResult">-- No training found --</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-primary flex-fill" id="trainButton">
+                                Train
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -75,13 +81,123 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", function() {        
-        document.getElementById("addBtn").onclick = function () {
-            
-        };
-        document.getElementById("viewBtn").onclick = function () {
-            
-        };
+    /* NOTE:
+        the following code to draw in a canvas has been adapted from Ian De Guzmán's DrawApp. 
+        please check Ian's repo for the original code and license, and to give him a kudos:
+        https://github.com/ianbrdeguzman/drawapp
+    */ 
+
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    const clearBtn = document.getElementById('clearButton');
+    const predictBtn = document.getElementById('predictButton');
+    const trainBtn = document.getElementById('trainButton');
+    const predictionResultSpan = document.getElementById('predictionResult');
+    const trainingResultSpan = document.getElementById('trainingResult');
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 18;
+
+    let drawing = false;
+    function start(e) { drawing = true; draw(e); }
+    function stop() { drawing = false; ctx.beginPath(); }
+    function draw(e) {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stop);
+    canvas.addEventListener('mouseout', stop);
+    
+    canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); start(e); });
+    canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); draw(e); });
+    canvas.addEventListener('touchend', (e)=>{ e.preventDefault(); stop(e); });
+
+    clearBtn.addEventListener('click', ()=>{
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      resultSpan.textContent = '';
+    });
+
+    predictBtn.addEventListener('click', async ()=>{
+      // create offscreen 8x8 canvas and downscale
+      const small = document.createElement('canvas');
+      small.width = 8; small.height = 8;
+      const sctx = small.getContext('2d');
+      // draw the big canvas into 8x8
+      sctx.drawImage(canvas, 0, 0, 8, 8);
+
+      const imgData = sctx.getImageData(0,0,8,8).data; // RGBA flat
+      const pixels = [];
+      for (let i=0;i<imgData.length;i+=4){
+        const r = imgData[i], g = imgData[i+1], b = imgData[i+2];
+        // convert to grayscale
+        const gray = 0.299*r + 0.587*g + 0.114*b;
+        // assume white background (255) and black strokes (0) --> invert so dark => high value
+        const inverted = 255 - gray;
+        // map 0..255 -> 0..16
+        const quant = Math.round((inverted/255) * 16);
+        pixels.push(quant);
+      }
+
+      // POST to Flask
+      try {
+        const resp = await fetch('/api/predict', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({pixels})
+        });
+        const j = await resp.json();
+        if (j.success) {
+          predictionResultSpan.textContent = 'Prediction: ' + j.prediction;
+        } else {
+          predictionResultSpan.textContent = 'Error: ' + (j.error || 'unknown');
+        }
+      } catch (err) {
+        predictionResultSpan.textContent = 'Request failed: ' + err;
+      }
+    });
+
+    trainBtn.addEventListener('click', async ()=>{
+      trainingResultSpan.textContent = 'Training...';
+      try {
+        const resp = await fetch('/api/train', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            seed: 42, 
+            test_size: 0.2, 
+            k_neighbors: 3, 
+            k_fold: 5
+          })
+        });
+        const j = await resp.json();
+        if (j.success) {
+            document.getElementById('totalRecords').innerHTML = j.data.total_records;
+            document.getElementById('errorCount').textContent = j.data.error_count;
+            document.getElementById('testRecords').textContent = j.data.test_records;
+            document.getElementById('crossValidation').textContent = (j.data.crossval_accuracy * 100).toFixed(2) + '%';
+            document.getElementById('trainingRecords').textContent = j.data.train_records;
+            document.getElementById('accuracy').textContent = (j.data.normal_accuracy * 100).toFixed(2) + '%';      
+            trainingResultSpan.textContent = 'Training completed.';
+        } else {
+          trainingResultSpan.textContent = 'Error: ' + (j.error || 'unknown');
+        }
+      } catch (err) {
+        trainingResultSpan.textContent = 'Request failed: ' + err;
+      }
     });
 </script>
 {% endblock %}

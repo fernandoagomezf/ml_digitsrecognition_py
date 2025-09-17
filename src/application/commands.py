@@ -35,12 +35,12 @@ class TrainCommand(Command):
         super().__init__("train_model")
         self._repository = repository
 
-    def execute(self) -> CommandResult:
-        super().execute()
+    def execute(self, input: CommandInput) -> CommandResult:
+        super().execute(input)
         
         model = KNNModel()
         model.read_data()
-        model.set_seed(self._input.data["seed"])
+        model.set_seed(input.data["seed"])
         model.set_k_neighbors(input.data["k_neighbors"])
         model.set_test_size(input.data["test_size"])
         model.set_k_fold(input.data["k_fold"])
