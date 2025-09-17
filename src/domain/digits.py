@@ -155,7 +155,7 @@ class KNNModel():
             confusion_matrix=cm.tolist()
         )
 
-    def predict(self, features: Any) -> Any:
+    def predict(self, features: Any) -> int:
         if features is None:
             raise ValueError("No se han proporcionado características para predecir.")
         if not hasattr(self._knn, "classes_"):
@@ -179,4 +179,8 @@ class KNNModel():
             raise ValueError(f"Unsupported feature shape: {arr.shape}. Expected 8x8 or flattened 64-length vectors.")
 
         preds = self._knn.predict(arr)
-        return preds[0] if preds.shape[0] == 1 else preds
+        
+        if preds.shape[0] != 1:
+            raise ValueError("Expected 64-length 'pixels' list")
+            
+        return int(preds[0])

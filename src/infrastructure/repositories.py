@@ -20,7 +20,7 @@ class KNNRepository(ClassifierRepository):
     def __init__(self):
         super().__init__("knn_model.joblib")
 
-    def get_model(self) -> KNNModel:
+    def get(self) -> KNNModel:
         payload = joblib.load(self.get_model_path())
         model = KNNModel()
         model._knn = payload.get("model")
@@ -32,6 +32,8 @@ class KNNRepository(ClassifierRepository):
         model._result = payload.get("result")
         if (model._result is None):
             raise ValueError("Failed to load the result from the specified path")
+        
+        return model
 
     def update(self, model:KNNModel) -> None:
         if model is None:

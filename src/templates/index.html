@@ -161,7 +161,7 @@
         });
         const j = await resp.json();
         if (j.success) {
-          predictionResultSpan.textContent = 'Prediction: ' + j.prediction;
+          predictionResultSpan.textContent = 'Prediction: ' + j.data.prediction;
         } else {
           predictionResultSpan.textContent = 'Error: ' + (j.error || 'unknown');
         }
@@ -178,9 +178,9 @@
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
             seed: 42, 
-            test_size: 0.2, 
-            k_neighbors: 3, 
-            k_fold: 5
+            test_size: 0.3, 
+            k_neighbors: 5, 
+            k_fold: 1
           })
         });
         const j = await resp.json();

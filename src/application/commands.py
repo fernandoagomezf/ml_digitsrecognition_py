@@ -1,5 +1,6 @@
-
+import numpy as np
 from dataclasses import dataclass
+from flask import jsonify
 from infrastructure.repositories import KNNRepository
 from domain.digits import KNNModel
 
@@ -63,12 +64,19 @@ class PredictCommand(Command):
     def execute(self, input: CommandInput) -> CommandResult:
         super().execute(input)
 
-        model = self._repository.load()
-        
+        if input.data is None:
+            return CommandResult(success=False, message="No input data provided")
+        pixels = input.data.get("pixels")
+        if pixels is None:
+            return CommandResult(success=False, message="No pixels provided for prediction")
+        if not isinstance(pixels, list) or len(pixels) != 64:
+            return CommandResult(success=False, message="Expected 64-length 'pixels' list")
 
-        features = input.data["features"]
+        features = np.array(pixels, dtype=float).reshape(8, 8)
         if features is None or len(features) == 0:
             return CommandResult(success=False, message="No features provided for prediction")
 
-        prediction = model.predict([features])
-        return CommandResult(success=True, message="Prediction successful", data={"prediction": prediction[0]})
+        model = self._repository.get()
+
+        prediction = model.predict(features)
+        return CommandResult(success=True, message="Prediction successful", data={"prediction": prediction})

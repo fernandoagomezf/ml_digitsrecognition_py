@@ -24,25 +24,13 @@ def train():
     command = TrainCommand(KNNRepository())
     input = CommandInput(data=request.get_json(force=True))
     result = command.execute(input)
-
     return jsonify(success=result.success, message=result.message, data=result.data)
 
 @webapp.get_engine().route("/api/predict", methods=["POST"])
-def predict():
-    data = request.get_json(force=True)
-    if not data:
-        return jsonify(success=False, error="No JSON body"), 400
-    pixels = data.get("pixels")
-    if pixels is None:
-        return jsonify(success=False, error="No pixels provided"), 400    
-    if not isinstance(pixels, list) or len(pixels) != 64:
-        return jsonify(success=False, error="Expected 64-length 'pixels' list"), 400    
-
-    input = CommandInput(data={
-        "features": np.array(pixels, dtype=float).reshape(8, 8)
-    })
+def predict():    
+    input = CommandInput(data=request.get_json(force=True))
     command = PredictCommand(KNNRepository())
     result = command.execute(input)
-    return jsonify(result)
+    return jsonify(success=result.success, message=result.message, data=result.data)
 
 webapp.start()
