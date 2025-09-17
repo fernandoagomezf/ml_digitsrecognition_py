@@ -107,6 +107,8 @@ How the frontend preprocessing works
 2. Before sending, JS downsamples the canvas to an 8x8 offscreen canvas, reads RGBA pixels, converts to grayscale, inverts (because dataset values are high for dark pixels), and maps to 0..16.
 3. The server accepts that 64-length list and your model's `predict()` handles either an 8x8 array or a flattened 64-length vector.
 
+The Bootstrap theme was generated using [DeepSeek](https://www.deepseek.com/). The canvas drawing code was adapted from [Ian De Guzmán's DrawApp](https://github.com/ianbrdeguzman/drawapp).
+
 ## Model persistence
 - Use `joblib.dump` to save a dict with `{'model': <estimator>, 'params': <hyperparameters>, 'result': <previous results>}` and `joblib.load` to restore both for fast predictions in production.
 
