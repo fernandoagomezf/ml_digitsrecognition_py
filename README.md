@@ -125,6 +125,7 @@ If predictions are wrong or model performs poorly:
   - Try enabling scaling (StandardScaler) during training (not implemented yet).
   - Check that the frontend downsample/inversion mapping produces values similar to sklearn digits.
   - Adapt the training parameters and re-train the model.
+  - Try a different algorithm (SVC, RandomForest, perhaps even a CNN) by modifying the `KNNModel` class in `src/domain/digits.py`.
 
 ## Next steps
 - Allow hyperparameter tuning from the UX
