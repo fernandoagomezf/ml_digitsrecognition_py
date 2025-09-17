@@ -110,16 +110,21 @@ How the frontend preprocessing works
 The Bootstrap theme was generated using [DeepSeek](https://www.deepseek.com/). The canvas drawing code was adapted from [Ian De Guzmán's DrawApp](https://github.com/ianbrdeguzman/drawapp).
 
 ## Model persistence
-- Use `joblib.dump` to save a dict with `{'model': <estimator>, 'params': <hyperparameters>, 'result': <previous results>}` and `joblib.load` to restore both for fast predictions in production.
+
+The app uses `joblib.dump` to save a dict with `{'model': <estimator>, 'params': <hyperparameters>, 'result': <previous results>}` and `joblib.load` to restore both for fast predictions in production.
+
+Please note that the model is loaded and stored in the local drive, which may not be suitable for production, and it's likely to cause issues if multiple instances of the app are running. This is meant for demo purposes only, in order to adapt it to a production scenario, consider using a database or a model registry.
 
 ## Troubleshooting
-- If predictions are wrong or model performs poorly:
+
+The data set used for training is small (1797 samples of 8x8 images) and the KNN algorithm is simple. Additionally, the frontend drawing and downsampling is basic, only considering black and white pixels. The data set does manage shades of gray. Furthermore, the set images are 8x8, while the canvas is 280x280, which can lead to loss of detail when downsampling.
+
+If predictions are wrong or model performs poorly:
+  - Try filling as much of the canvas as you can. In my tests, this improved the detection over just drawing a small digit in the center.
+  - Try drawing with a thicker brush.
   - Try enabling scaling (StandardScaler) during training (not implemented yet).
   - Check that the frontend downsample/inversion mapping produces values similar to sklearn digits.
-  - Validate saved model is loaded (check `knn_model.joblib` exists).
-- If the web UI shows `Request failed`:
-  - Check the Flask logs for stack traces.
-  - Verify CORS if serving frontend and backend from different origins.
+  - Adapt the training parameters and re-train the model.
 
 ## Next steps
 - Allow hyperparameter tuning from the UX
