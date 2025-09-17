@@ -9,6 +9,7 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix
+import numpy as np
 
 @dataclass
 class Data:
@@ -38,7 +39,7 @@ class HyperParameters:
     k_neighbors:int
     k_fold:int
 
-class DigitsClassifier():
+class KNNModel():
     _params: HyperParameters
     _data: Data
     _result: Result
@@ -55,7 +56,7 @@ class DigitsClassifier():
         self._knn = KNeighborsClassifier(n_neighbors=self._params.k_neighbors)
         self._result = None
 
-    def load(self):
+    def read_data(self):
         digits = load_digits()
         self._data = replace(self._data, set=digits.data, target=digits.target)
 
@@ -98,29 +99,28 @@ class DigitsClassifier():
         
     def get_result(self) -> Result:
         return self._result
-
+    
     def train(self):
         if self._data.set is None or self._data.target is None:
             raise ValueError("Los datos no han sido cargados. Por favor, cargue los datos antes de entrenar el modelo.")
         
-        x_train, x_test, y_train, y_test = train_test_split(
+        X_train, X_test, y_train, y_test = train_test_split(
             self._data.set,
             self._data.target,
             random_state=self._params.seed,
             test_size=self._params.test_size
-        )
+        )        
+        
         self._data = Data(
             self._data.set,
             self._data.target,
-            x_train,
+            X_train,
             y_train,
-            x_test,
+            X_test,
             y_test
         )
-        self._knn.fit(
-            self._data.train_features, 
-            self._data.train_target
-        )
+        
+        self._knn.fit(self._data.train_features, self._data.train_target)
 
     def evaluate(self):
         if self._data.test_features is None or self._data.test_target is None:
@@ -154,3 +154,29 @@ class DigitsClassifier():
             error_count=len(errored), 
             confusion_matrix=cm
         )
+
+    def predict(self, features: Any) -> Any:
+        if features is None:
+            raise ValueError("No se han proporcionado características para predecir.")
+        if not hasattr(self._knn, "classes_"):
+            raise ValueError("El modelo no ha sido entrenado. Entrene el modelo antes de predecir.")
+
+        arr = np.asarray(features)
+
+        # Single 8x8 -> (1,64)
+        if arr.ndim == 2 and arr.shape == (8, 8):
+            arr = arr.reshape(1, 64)
+        # Batch of 8x8 images -> (n,64)
+        elif arr.ndim == 3 and arr.shape[1:] == (8, 8):
+            arr = arr.reshape(arr.shape[0], 64)
+        # Single flattened -> (1,64)
+        elif arr.ndim == 1 and arr.size == 64:
+            arr = arr.reshape(1, 64)
+        # Batch flattened (n,64) -> OK
+        elif arr.ndim == 2 and arr.shape[1] == 64:
+            pass
+        else:
+            raise ValueError(f"Unsupported feature shape: {arr.shape}. Expected 8x8 or flattened 64-length vectors.")
+
+        preds = self._knn.predict(arr)
+        return preds[0] if preds.shape[0] == 1 else preds
