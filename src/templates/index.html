@@ -100,7 +100,7 @@
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 18;
+    ctx.lineWidth = 30;
 
     let drawing = false;
     function start(e) { drawing = true; draw(e); }
@@ -163,7 +163,7 @@
         if (j.success) {
           predictionResultSpan.textContent = 'Prediction: ' + j.data.prediction;
         } else {
-          predictionResultSpan.textContent = 'Error: ' + (j.error || 'unknown');
+          predictionResultSpan.textContent = (j.message || 'unknown');
         }
       } catch (err) {
         predictionResultSpan.textContent = 'Request failed: ' + err;
@@ -179,8 +179,8 @@
           body: JSON.stringify({
             seed: 42, 
             test_size: 0.3, 
-            k_neighbors: 5, 
-            k_fold: 1
+            k_neighbors: 1, 
+            k_fold: 5
           })
         });
         const j = await resp.json();
@@ -193,7 +193,7 @@
             document.getElementById('accuracy').textContent = (j.data.normal_accuracy * 100).toFixed(2) + '%';      
             trainingResultSpan.textContent = 'Training completed.';
         } else {
-          trainingResultSpan.textContent = 'Error: ' + (j.error || 'unknown');
+          trainingResultSpan.textContent = (j.message || 'unknown');
         }
       } catch (err) {
         trainingResultSpan.textContent = 'Request failed: ' + err;

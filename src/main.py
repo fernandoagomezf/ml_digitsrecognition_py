@@ -21,16 +21,22 @@ def about():
 
 @webapp.get_engine().route("/api/train", methods=["POST"])
 def train():
-    command = TrainCommand(KNNRepository())
-    input = CommandInput(data=request.get_json(force=True))
-    result = command.execute(input)
-    return jsonify(success=result.success, message=result.message, data=result.data)
+    try:
+        command = TrainCommand(KNNRepository())
+        input = CommandInput(data=request.get_json(force=True))
+        result = command.execute(input)
+        return jsonify(success=result.success, message=result.message, data=result.data)
+    except Exception as e:
+        return jsonify(success=False, message=str(e), data=None)
 
 @webapp.get_engine().route("/api/predict", methods=["POST"])
 def predict():    
-    input = CommandInput(data=request.get_json(force=True))
-    command = PredictCommand(KNNRepository())
-    result = command.execute(input)
-    return jsonify(success=result.success, message=result.message, data=result.data)
+    try:
+        input = CommandInput(data=request.get_json(force=True))
+        command = PredictCommand(KNNRepository())
+        result = command.execute(input)
+        return jsonify(success=result.success, message=result.message, data=result.data)
+    except Exception as e:
+        return jsonify(success=False, message=str(e), data=None)
 
 webapp.start()
