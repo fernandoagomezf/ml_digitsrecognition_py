@@ -152,7 +152,7 @@ class KNNModel():
             train_records=len(self._data.train_features),
             test_records=len(self._data.test_features), 
             error_count=len(errored), 
-            confusion_matrix=cm
+            confusion_matrix=cm.tolist()
         )
 
     def predict(self, features: Any) -> Any:
